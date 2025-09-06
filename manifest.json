@@ -1,0 +1,23 @@
+{
+  "short_name": "Duonn Suporte",
+  "name": "Duonn Sound - Suporte Técnico",
+  "description": "Sistema de suporte técnico da Duonn Sound.",
+  "icons": [
+    {
+      "src": "https://yt3.googleusercontent.com/BF0uGWCP5u6HLQEfgqXP-Nmt40uU45bm6FlfWLl8iS3x6ue3CisXve2XScLbPPngYnm9YGkSzA=s192-c-k-c0x00ffffff-no-rj",
+      "type": "image/png",
+      "sizes": "192x192",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://yt3.googleusercontent.com/BF0uGWCP5u6HLQEfgqXP-Nmt40uU45bm6FlfWLl8iS3x6ue3CisXve2XScLbPPngYnm9YGkSzA=s512-c-k-c0x00ffffff-no-rj",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#2c3e50",
+  "background_color": "#ecf0f1"
+}
