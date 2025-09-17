@@ -1,7 +1,7 @@
 :root {
   --primary-color: #2c3e50;
   --secondary-color: #3498db;
-  --background-color: #ecf0f1;
+  --background-color: #D0EFFF;
   --surface-color: #ffffff;
   --text-color: #34495e;
   --border-color: #bdc3c7;
@@ -41,6 +41,75 @@ body {
   align-items: stretch;
 }
 
+/* Login Page Styles */
+.login-page {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: var(--primary-color);
+  position: fixed;
+  top: 0;
+  left: 0;
+}
+
+.login-container {
+  background-color: var(--surface-color);
+  padding: 30px 40px;
+  border-radius: 10px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.login-logo {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  margin-bottom: 15px;
+}
+
+.login-container h1 {
+  color: var(--primary-color);
+  margin-bottom: 5px;
+}
+
+.login-container p {
+  color: var(--text-color);
+  margin-bottom: 20px;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.login-form .form-group label {
+  text-align: left;
+}
+
+.login-btn {
+  width: 100%;
+  padding: 12px;
+  font-size: 1rem;
+  margin-top: 10px;
+  background-color: var(--secondary-color);
+}
+
+.login-btn:hover {
+  background-color: #2980b9;
+}
+
+.login-footer {
+  margin-top: 24px;
+  color: #bdc3c7;
+  font-size: 0.8rem;
+  text-align: center;
+}
+
 .container {
   background-color: var(--surface-color);
   padding: 18px 24px;
@@ -49,19 +118,32 @@ body {
   width: 100%;
   flex: 1;
   min-width: 0;
+  border: 1px solid var(--light-blue);
 }
 
 .app-header {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 12px;
+  margin-bottom: 20px;
 }
 
 .logo {
   width: 28px;
   height: 28px;
   border-radius: 50%;
+}
+
+.header-titles {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .header-info {
@@ -87,7 +169,6 @@ body {
   border: none;
   cursor: pointer;
   padding: 4px;
-  margin-left: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -97,7 +178,7 @@ body {
 .settings-btn svg {
   width: 22px;
   height: 22px;
-  fill: var(--text-color);
+  fill: var(--secondary-color);
   transition: fill 0.2s;
 }
 
@@ -106,7 +187,28 @@ body {
 }
 
 .settings-btn:hover svg {
-  fill: var(--primary-color);
+  fill: #2980b9;
+}
+
+.logout-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logout-btn svg {
+  width: 24px;
+  height: 24px;
+  fill: var(--secondary-color);
+  transition: fill 0.2s;
+}
+
+.logout-btn:hover svg {
+  fill: #2980b9;
 }
 
 .app-header h1 {
@@ -114,6 +216,13 @@ body {
   font-weight: 700;
   font-size: 1.4rem;
   margin: 0;
+}
+
+.header-subtitle {
+  font-size: 0.8rem;
+  color: #7f8c8d;
+  margin: 0;
+  font-weight: 400;
 }
 
 .app-header h2 {
@@ -223,30 +332,32 @@ body {
 .submit-container {
   display: flex;
   justify-content: center;
+  align-items: center;
   margin-top: 8px;
-  gap: 8px;
+  gap: 12px;
+  flex-wrap: nowrap;
 }
 
 .submit-btn {
   width: auto;
-  padding: 8px 14px;
+  padding: 6px 12px;
   background-color: var(--whatsapp-green);
   color: white;
   border: none;
   border-radius: 5px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .submit-btn svg {
-  height: 20px;
-  width: 20px;
+  height: 18px;
+  width: 18px;
 }
 
 .submit-btn:hover {
@@ -258,12 +369,12 @@ body {
 }
 
 .export-btn {
-  padding: 8px 14px;
+  padding: 6px 12px;
   background-color: var(--secondary-color);
   color: white;
   border: none;
   border-radius: 5px;
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 500;
   cursor: pointer;
   transition: background-color 0.3s ease, transform 0.2s ease;
@@ -289,6 +400,18 @@ body {
 .message.success {
   background-color: #eafaf1;
   color: var(--success-color);
+}
+
+.message.error {
+  background-color: #fbeae5;
+  color: var(--error-color);
+  margin-bottom: 10px;
+  margin-top: 0;
+}
+
+.copy-success-message {
+    margin-top: 4px;
+    margin-bottom: 8px;
 }
 
 /* Quick Message Panel Styles */
@@ -323,8 +446,35 @@ body {
   background-color: var(--light-blue-dark);
 }
 
+.placeholder-btn {
+  background-color: #ecf0f1;
+  color: #95a5a6;
+  border-color: #bdc3c7;
+}
+
+.placeholder-btn:hover {
+  background-color: #e0e4e6;
+  color: #7f8c8d;
+}
+
 #quickMessageText {
   resize: none;
+}
+
+/* Quick Message Panel Background */
+.quick-message-container {
+  background-color: #ffffff; /* Changed to white as requested */
+}
+
+/* New copy button style */
+.copy-btn {
+  background-color: var(--warning-color);
+  color: var(--primary-color);
+  border: 1px solid #f39c12;
+}
+
+.copy-btn:hover {
+  background-color: #f39c12;
 }
 
 /* Notepad Section Styles */
@@ -515,6 +665,36 @@ body {
   margin: 18px 0;
 }
 
+.priority-info-section {
+  margin-top: 24px;
+  border-top: 1px solid var(--border-color);
+  padding-top: 16px;
+}
+
+.priority-info-section .quick-message-title {
+  font-size: 1.1rem;
+}
+
+.priority-info-section .form-group {
+  margin-bottom: 0;
+}
+
+.priority-info-section textarea {
+    background-color: #fef9e7;
+    color: var(--text-color);
+    line-height: 1.5;
+}
+
+#priority-info,
+#priority-info-edit {
+  resize: none;
+}
+
+.priority-info-section textarea:read-only {
+  cursor: default;
+  opacity: 0.85;
+}
+
 .app-footer {
   display: flex;
   flex-direction: column;
@@ -612,6 +792,14 @@ body {
   margin-bottom: 8px;
 }
 
+.settings-section h3 {
+  margin-top: 24px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 8px;
+}
+
+
 .settings-section p {
   margin-bottom: 16px;
   color: #7f8c8d;
@@ -635,7 +823,8 @@ body {
   border-radius: 5px;
 }
 
-.add-model-form button {
+.add-model-form button,
+.add-user-form button {
   padding: 8px 16px;
   background-color: var(--secondary-color);
   color: white;
@@ -645,9 +834,16 @@ body {
   transition: background-color 0.2s;
 }
 
-.add-model-form button:hover {
+.add-model-form button:hover,
+.add-user-form button:hover {
   background-color: #2980b9;
 }
+
+.add-user-form button:disabled {
+    background-color: #bdc3c7;
+    cursor: not-allowed;
+}
+
 
 .model-list {
   list-style: none;
@@ -660,6 +856,7 @@ body {
   justify-content: space-between;
   padding: 12px;
   border-bottom: 1px solid #ecf0f1;
+  gap: 10px;
 }
 
 .model-item:last-child {
@@ -668,6 +865,7 @@ body {
 
 .model-item span {
   font-weight: 500;
+  flex-grow: 1;
 }
 
 .edit-model-input {
@@ -677,6 +875,13 @@ body {
   border-radius: 4px;
   margin-right: 10px;
 }
+
+.user-list .edit-model-input {
+  flex-grow: 0;
+  flex-basis: 40%;
+  margin-right: 5px;
+}
+
 
 .model-item-controls {
   display: flex;
@@ -690,6 +895,7 @@ body {
   cursor: pointer;
   font-size: 0.85rem;
   transition: opacity 0.2s;
+  white-space: nowrap;
 }
 
 .model-item-controls button:hover {
@@ -699,6 +905,11 @@ body {
 .edit-model-btn, .save-model-btn {
   background-color: var(--warning-color);
   color: var(--text-color);
+}
+
+.cancel-model-btn {
+    background-color: #ecf0f1;
+    color: var(--text-color);
 }
 
 .delete-model-btn {
@@ -732,6 +943,29 @@ body {
   width: 20px;
 }
 
+/* Assistant Page Styles */
+.product-controls {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.product-action-btn {
+  padding: 4px 10px;
+  border: 2px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+  white-space: nowrap;
+  background-color: #7f8c8d; /* A neutral gray */
+  color: white;
+  margin: 2px; /* Add small margin for wrapping */
+}
+
+.product-action-btn:hover {
+  background-color: #95a5a6;
+}
+
 
 /* Responsive adjustments */
 @media (max-width: 1024px) {
@@ -751,22 +985,23 @@ body {
     padding: 16px;
   }
   .app-header {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-wrap: wrap;
     gap: 8px;
+  }
+  .header-titles {
+    flex-basis: 100%;
+    order: 1;
+  }
+  .header-controls {
+    order: 2;
   }
   .header-info {
     margin-left: 0;
     align-items: flex-start;
-    width: 100%;
+    flex-basis: 100%;
     flex-direction: row;
     justify-content: space-between;
-  }
-  .submit-container {
-    flex-direction: column;
-  }
-  .submit-btn, .export-btn {
-    width: 100%;
+    order: 3;
   }
   
   .settings-container {
@@ -784,4 +1019,317 @@ body {
   .menu-item {
     white-space: nowrap;
   }
+}
+
+/* TV Mode Compact Layout */
+.tv-mode body {
+  padding: 8px;
+}
+
+.tv-mode #root {
+  gap: 12px;
+}
+
+.tv-mode .container {
+  padding: 12px 18px;
+}
+
+.tv-mode .app-header {
+  margin-bottom: 12px;
+  gap: 10px;
+}
+
+.tv-mode .app-header h1 {
+  font-size: 1.25rem;
+}
+
+.tv-mode .form-group {
+  margin-bottom: 8px;
+}
+
+.tv-mode .form-group label {
+  font-size: 0.8rem;
+  margin-bottom: 3px;
+}
+
+.tv-mode .form-group input,
+.tv-mode .form-group select,
+.tv-mode .form-group textarea {
+  padding: 5px 8px;
+  font-size: 13px;
+}
+
+.tv-mode .radio-group {
+  margin-top: 4px;
+  gap: 12px;
+}
+
+.tv-mode .radio-label {
+  font-size: 13px;
+}
+
+.tv-mode .submit-container {
+  margin-top: 6px;
+  gap: 10px;
+}
+
+.tv-mode .submit-btn,
+.tv-mode .export-btn {
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.tv-mode .submit-btn svg {
+  height: 16px;
+  width: 16px;
+}
+
+.tv-mode .quick-message-title {
+  font-size: 1.1rem;
+  margin-bottom: 10px;
+}
+
+.tv-mode .quick-message-controls {
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.tv-mode .quick-btn {
+  padding: 6px 10px;
+  font-size: 13px;
+}
+
+.tv-mode .notepad-controls {
+  margin-top: 6px;
+}
+
+.tv-mode .save-note-btn {
+  padding: 7px 12px;
+  height: auto;
+  font-size: 13px;
+}
+
+.tv-mode .note-selectors-container {
+  margin-bottom: 8px;
+}
+
+.tv-mode .note-selector-btn {
+  padding: 6px;
+}
+
+.tv-mode .expanded-note-container {
+  min-height: 100px;
+}
+
+.tv-mode .note-item-editable {
+  padding: 10px;
+}
+
+.tv-mode .priority-info-section {
+  margin-top: 16px;
+  padding-top: 12px;
+}
+
+.tv-mode .app-footer {
+  padding-top: 5px;
+  gap: 4px;
+}
+
+.tv-mode .google-logo {
+  height: 20px;
+}
+
+.tv-mode .footer-credit {
+  font-size: 0.75rem;
+}
+
+/* Update Notification Toast */
+.update-toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--primary-color);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  z-index: 2000;
+  font-size: 1rem;
+}
+
+.update-toast button {
+  background-color: var(--secondary-color);
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.update-toast button:hover {
+  background-color: #2980b9;
+}
+
+/* VST Assistant Button Styles */
+@keyframes blink-animation {
+  0% { opacity: 1; }
+  50% { opacity: 0.6; }
+  100% { opacity: 1; }
+}
+
+.vst-assistant-btn {
+  background-color: var(--secondary-color) !important;
+  color: white !important;
+  border-color: #2980b9 !important;
+  animation: blink-animation 1.5s linear infinite;
+}
+
+.vst-assistant-btn:hover {
+  background-color: #2980b9 !important;
+}
+
+/* Blinking Copy Button Styles */
+.copy-btn.blinking-copy {
+  background-color: var(--error-color) !important;
+  color: white !important;
+  border-color: #c0392b !important;
+  animation: blink-animation 1.5s linear infinite;
+}
+
+/* Assistant Page Dark Mode */
+.assistant-dark-mode {
+  background-color: var(--primary-color);
+  color: #ecf0f1;
+}
+
+.assistant-dark-mode .settings-header {
+  background-color: #1a2531;
+  border-bottom: 1px solid #34495e;
+}
+
+.assistant-dark-mode .settings-header h1 {
+  color: #ecf0f1;
+}
+
+.assistant-dark-mode .back-btn {
+  background-color: var(--secondary-color);
+}
+
+.assistant-dark-mode .back-btn:hover {
+  background-color: #2980b9;
+}
+
+.assistant-dark-mode .settings-content {
+  background-color: var(--primary-color);
+}
+
+.assistant-dark-mode .settings-section h2 {
+  color: #ecf0f1;
+}
+
+.assistant-dark-mode .settings-section p {
+  color: #bdc3c7;
+}
+
+.assistant-dark-mode .model-item {
+  background-color: #34495e;
+  border-bottom: 1px solid #2c3e50;
+  color: #ecf0f1;
+}
+
+.assistant-dark-mode .model-item.highlight-product {
+  background-color: #4a6572;
+}
+
+.assistant-dark-mode .product-action-btn {
+  background-color: var(--primary-color);
+  color: #ecf0f1;
+  border: 2px solid #7f8c8d;
+}
+
+.assistant-dark-mode .product-action-btn:hover {
+  background-color: #1a2531;
+}
+
+.assistant-dark-mode .first-steps-btn {
+  background-color: #95a5a6; /* Light gray */
+  color: var(--primary-color); /* Dark text for contrast */
+  font-weight: 500;
+  border-color: #7f8c8d;
+  animation: blink-animation 1.5s linear infinite;
+}
+
+.assistant-dark-mode .first-steps-btn:hover {
+  background-color: #bdc3c7; /* Lighter gray on hover */
+}
+
+.assistant-dark-mode .software-btn {
+  background-color: #d35400; /* Dark Orange */
+  color: white;
+  font-weight: 500;
+  border-color: #a04000;
+}
+
+.assistant-dark-mode .software-btn:hover {
+  background-color: #e67e22; /* Lighter orange on hover */
+}
+
+.assistant-dark-mode .reset-btn {
+  background-color: #e67e22; /* Orange */
+  color: white;
+  font-weight: 500;
+  border-color: #d35400;
+}
+
+.assistant-dark-mode .reset-btn:hover {
+  background-color: #d35400; /* Darker orange on hover */
+}
+
+.assistant-dark-mode .product-action-btn.selected-action-btn {
+  background-color: var(--secondary-color);
+  border-color: var(--light-blue);
+  box-shadow: 0 0 8px rgba(52, 152, 219, 0.7);
+  transform: scale(1.05);
+}
+
+.global-copy-btn {
+  padding: 8px 16px;
+  background-color: var(--warning-color);
+  color: var(--primary-color);
+  border: none;
+  border-radius: 5px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+  margin-left: auto;
+}
+
+.global-copy-btn:hover:not(:disabled) {
+  background-color: #f39c12;
+}
+
+.global-copy-btn:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.global-copy-btn:disabled {
+  background-color: #7f8c8d;
+  color: #bdc3c7;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.global-copy-btn.blinking-copy {
+  background-color: var(--success-color) !important;
+  color: white !important;
+  border-color: #27ae60 !important;
+  animation: blink-animation 1.5s linear infinite;
 }

@@ -7,6 +7,67 @@ interface Note {
   priority: 'low' | 'medium' | 'high';
 }
 
+interface User {
+  login: string;
+  password: string;
+}
+
+const MASTER_LOGIN = 'midimovie@gmail.com';
+const MASTER_PASSWORD = '3492';
+
+const LoginPage = ({ onLogin }: { onLogin: (login: string, pass: string) => boolean }) => {
+  const [login, setLogin] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    const loginSuccess = onLogin(login, password);
+    if (!loginSuccess) {
+      setError('Credenciais inválidas. Tente novamente.');
+    }
+  };
+
+  return (
+    <div className="login-page">
+      <div className="login-container">
+        <img src="https://yt3.googleusercontent.com/BF0uGWCP5u6HLQEfgqXP-Nmt40uU45bm6FlfWLl8iS3x6ue3CisXve2XScLbPPngYnm9YGkSzA=s900-c-k-c0x00ffffff-no-rj" alt="Duonn Sound Logo" className="login-logo" />
+        <h1>Workstation Login</h1>
+        <p>Acesso ao Gerador de Protocolo SAC</p>
+        <form onSubmit={handleSubmit} className="login-form">
+          <div className="form-group">
+            <label htmlFor="login-user">Usuário ou E-mail</label>
+            <input
+              id="login-user"
+              type="text"
+              value={login}
+              onChange={(e) => setLogin(e.target.value)}
+              required
+              aria-label="Usuário ou E-mail"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="login-password">Senha</label>
+            <input
+              id="login-password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              aria-label="Senha"
+            />
+          </div>
+          {error && <p className="message error" role="alert">{error}</p>}
+          <button type="submit" className="submit-btn login-btn">Entrar</button>
+        </form>
+      </div>
+      <p className="login-footer">Sofware protoipo 2025 aistudio Goggle Midimovie Studios</p>
+    </div>
+  );
+};
+
+
 const DateDisplay = () => {
   const [date, setDate] = useState(new Date());
 
@@ -34,10 +95,17 @@ interface SettingsPageProps {
   onDefaultSacPhoneChange: (phone: string) => void;
   consoleModels: string[];
   onConsoleModelsChange: (models: string[]) => void;
+  displayMode: 'default' | 'tv';
+  onDisplayModeChange: (mode: 'default' | 'tv') => void;
+  currentUserLogin: string | null;
+  users: User[];
+  onUsersChange: (users: User[]) => void;
+  priorityInfoText: string;
+  onPriorityInfoTextChange: (text: string) => void;
 }
 
-const SettingsPage = ({ onBack, defaultSacPhone, onDefaultSacPhoneChange, consoleModels, onConsoleModelsChange }: SettingsPageProps) => {
-  const [activeTab, setActiveTab] = useState<'telefone' | 'modelos'>('telefone');
+const SettingsPage = ({ onBack, defaultSacPhone, onDefaultSacPhoneChange, consoleModels, onConsoleModelsChange, displayMode, onDisplayModeChange, currentUserLogin, users, onUsersChange, priorityInfoText, onPriorityInfoTextChange }: SettingsPageProps) => {
+  const [activeTab, setActiveTab] = useState<'telefone' | 'modelos' | 'exibicao' | 'usuarios' | 'prioridades'>('telefone');
   
   // State for phone settings
   const [phoneInput, setPhoneInput] = useState(defaultSacPhone);
@@ -89,6 +157,57 @@ const SettingsPage = ({ onBack, defaultSacPhone, onDefaultSacPhoneChange, consol
       alert('O nome do modelo não pode estar vazio.');
     }
   };
+  
+  // State for user settings
+  const [editingUserIndex, setEditingUserIndex] = useState<number | null>(null);
+  const [editingUser, setEditingUser] = useState<User>({ login: '', password: '' });
+  const [newUser, setNewUser] = useState<User>({ login: '', password: '' });
+  
+  const handleAddUser = () => {
+    if (users.length >= 3) {
+      alert('Limite de 3 usuários adicionais atingido.');
+      return;
+    }
+    if (!newUser.login.trim() || !newUser.password.trim()) {
+      alert('Login e senha não podem estar vazios.');
+      return;
+    }
+    if (users.some(u => u.login === newUser.login.trim()) || newUser.login.trim() === MASTER_LOGIN) {
+      alert('Este nome de usuário já existe.');
+      return;
+    }
+    onUsersChange([...users, { login: newUser.login.trim(), password: newUser.password.trim() }]);
+    setNewUser({ login: '', password: '' });
+  };
+  
+  const handleDeleteUser = (indexToDelete: number) => {
+     if (window.confirm(`Tem certeza que deseja remover o usuário "${users[indexToDelete].login}"?`)) {
+       onUsersChange(users.filter((_, index) => index !== indexToDelete));
+     }
+  };
+
+  const handleStartEditUser = (index: number) => {
+    setEditingUserIndex(index);
+    setEditingUser(users[index]);
+  };
+  
+  const handleCancelEditUser = () => {
+    setEditingUserIndex(null);
+    setEditingUser({ login: '', password: '' });
+  };
+
+  const handleSaveUserEdit = (indexToSave: number) => {
+    if (!editingUser.login.trim() || !editingUser.password.trim()) {
+      alert('Login e senha não podem estar vazios.');
+      return;
+    }
+    const updatedUsers = [...users];
+    updatedUsers[indexToSave] = editingUser;
+    onUsersChange(updatedUsers);
+    setEditingUserIndex(null);
+    setEditingUser({ login: '', password: '' });
+  };
+
 
   return (
     <div className="settings-page">
@@ -106,6 +225,11 @@ const SettingsPage = ({ onBack, defaultSacPhone, onDefaultSacPhoneChange, consol
         <nav className="settings-menu">
           <button onClick={() => setActiveTab('telefone')} className={`menu-item ${activeTab === 'telefone' ? 'active' : ''}`}>Telefone Padrão</button>
           <button onClick={() => setActiveTab('modelos')} className={`menu-item ${activeTab === 'modelos' ? 'active' : ''}`}>Modelos de Console</button>
+          <button onClick={() => setActiveTab('exibicao')} className={`menu-item ${activeTab === 'exibicao' ? 'active' : ''}`}>Modo de Exibição</button>
+          {currentUserLogin === MASTER_LOGIN && (
+              <button onClick={() => setActiveTab('usuarios')} className={`menu-item ${activeTab === 'usuarios' ? 'active' : ''}`}>Gerenciar Usuários</button>
+          )}
+           <button onClick={() => setActiveTab('prioridades')} className={`menu-item ${activeTab === 'prioridades' ? 'active' : ''}`}>Prioridades Gerencia</button>
         </nav>
         <main className="settings-content">
           {activeTab === 'telefone' && (
@@ -159,20 +283,310 @@ const SettingsPage = ({ onBack, defaultSacPhone, onDefaultSacPhoneChange, consol
               </ul>
             </div>
           )}
+          {activeTab === 'exibicao' && (
+            <div className="settings-section">
+              <h2>Modo de Exibição</h2>
+              <p>Ajuste o layout da aplicação para diferentes tamanhos de tela. O modo TV é otimizado para resoluções menores como 1366x768.</p>
+              <div className="form-group">
+                <div className="radio-group" role="radiogroup" aria-label="Modo de Exibição">
+                  <label className="radio-label">
+                    <input
+                      type="radio"
+                      name="displayMode"
+                      value="default"
+                      checked={displayMode === 'default'}
+                      onChange={() => onDisplayModeChange('default')}
+                    />
+                    <span>Padrão (Responsivo)</span>
+                  </label>
+                  <label className="radio-label">
+                    <input
+                      type="radio"
+                      name="displayMode"
+                      value="tv"
+                      checked={displayMode === 'tv'}
+                      onChange={() => onDisplayModeChange('tv')}
+                    />
+                    <span>Modo TV (Compacto)</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          )}
+          {activeTab === 'usuarios' && currentUserLogin === MASTER_LOGIN && (
+            <div className="settings-section">
+                <h2>Gerenciar Usuários</h2>
+                <p>Crie, edite ou remova contas de usuário. Máximo de 3 usuários adicionais.</p>
+                <div className="add-user-form">
+                    <h3>Adicionar Novo Usuário</h3>
+                    <div className="form-group">
+                        <label htmlFor="new-user-login">Login</label>
+                        <input id="new-user-login" type="text" value={newUser.login} onChange={(e) => setNewUser({...newUser, login: e.target.value})} placeholder="ex: joao.silva" disabled={users.length >= 3} />
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="new-user-password">Senha</label>
+                        <input id="new-user-password" type="password" value={newUser.password} onChange={(e) => setNewUser({...newUser, password: e.target.value})} disabled={users.length >= 3} />
+                    </div>
+                    <button onClick={handleAddUser} disabled={users.length >= 3}>Adicionar Usuário</button>
+                </div>
+                <h3>Usuários Cadastrados ({users.length}/3)</h3>
+                <ul className="model-list user-list">
+                    {users.map((user, index) => (
+                        <li key={index} className="model-item">
+                            {editingUserIndex === index ? (
+                                <>
+                                    <input type="text" value={editingUser.login} onChange={(e) => setEditingUser({...editingUser, login: e.target.value})} className="edit-model-input" aria-label="Editar login"/>
+                                    <input type="text" value={editingUser.password} onChange={(e) => setEditingUser({...editingUser, password: e.target.value})} className="edit-model-input" aria-label="Editar senha"/>
+                                </>
+                            ) : (
+                                <span>{user.login}</span>
+                            )}
+                            <div className="model-item-controls">
+                                {editingUserIndex === index ? (
+                                    <>
+                                        <button onClick={() => handleSaveUserEdit(index)} className="save-model-btn">Salvar</button>
+                                        <button onClick={handleCancelEditUser} className="cancel-model-btn">Cancelar</button>
+                                    </>
+                                ) : (
+                                    <>
+                                        <button onClick={() => handleStartEditUser(index)} className="edit-model-btn">Editar</button>
+                                        <button onClick={() => handleDeleteUser(index)} className="delete-model-btn">Remover</button>
+                                    </>
+                                )}
+                            </div>
+                        </li>
+                    ))}
+                </ul>
+            </div>
+          )}
+           {activeTab === 'prioridades' && (
+            <div className="settings-section">
+              <h2>Editar Prioridades de Atendimento</h2>
+              <p>Este texto aparece no final do Bloco de Notas na tela principal. Você pode editá-lo ou limpá-lo aqui.</p>
+              <div className="form-group">
+                <label htmlFor="priority-info-edit">Texto das Prioridades</label>
+                <textarea
+                  id="priority-info-edit"
+                  value={priorityInfoText}
+                  onChange={(e) => onPriorityInfoTextChange(e.target.value)}
+                  rows={12}
+                  aria-label="Texto das Prioridades"
+                />
+              </div>
+              <button
+                type="button"
+                className="delete-model-btn"
+                onClick={() => {
+                  if (window.confirm('Tem certeza que deseja apagar todo o texto? Esta ação não pode ser desfeita.')) {
+                    onPriorityInfoTextChange('');
+                  }
+                }}
+              >
+                Limpar Texto
+              </button>
+            </div>
+          )}
         </main>
       </div>
     </div>
   );
 };
 
+interface AssistantPageProps {
+  onBack: () => void;
+}
+
+const AssistantPage = ({ onBack }: AssistantPageProps) => {
+  const [copySuccess, setCopySuccess] = useState(false);
+  const [textToCopy, setTextToCopy] = useState<string>('');
+  const [selectedButtonKey, setSelectedButtonKey] = useState<string | null>(null);
+  const [isBlinking, setIsBlinking] = useState(false);
+
+  const products = [
+    'Liveband 16',
+    'Axios 16', 'Axios 24', 'Axios 32',
+    'Atrium 12', 'Atrium 20', 'Atrium 32',
+    'StagePro 16', 'StagePro 24',
+    'PRISMA 480', 'VIRTUS480'
+  ];
+  
+  const actions = ['Primeiros passos', 'Sofware instal Tutotial', 'Vídeos', 'Firmware', 'Esquema', 'Garantia'];
+
+  const handleSelectForCopy = (productName: string, action: string) => {
+    const key = `${productName}-${action}`;
+    if (selectedButtonKey === key) {
+      setSelectedButtonKey(null);
+      setTextToCopy('');
+    } else {
+      const text = `Link de ${action} para ${productName}`;
+      setTextToCopy(text);
+      setSelectedButtonKey(key);
+    }
+  };
+
+  const handleGlobalCopy = () => {
+    if (!textToCopy) {
+      alert('Por favor, selecione um item para copiar.');
+      return;
+    }
+    navigator.clipboard.writeText(textToCopy).then(() => {
+      setCopySuccess(true);
+      setIsBlinking(true);
+      setSelectedButtonKey(null);
+      setTextToCopy('');
+      setTimeout(() => {
+        setCopySuccess(false);
+        setIsBlinking(false);
+      }, 3000);
+    }).catch(err => {
+      console.error('Falha ao copiar texto: ', err);
+      alert('Não foi possível copiar o texto.');
+    });
+  };
+
+  return (
+    <div className="settings-page assistant-dark-mode">
+      <header className="app-header settings-header">
+        <h1>Asistant Duonn Care</h1>
+        <button
+          onClick={handleGlobalCopy}
+          className={`global-copy-btn ${isBlinking ? 'blinking-copy' : ''}`}
+          disabled={!textToCopy}
+          title={textToCopy ? `Copiar: "${textToCopy}"` : "Selecione um item abaixo para copiar o link"}
+        >
+          Copiar
+        </button>
+        <button onClick={onBack} className="back-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" fill="white" aria-hidden="true">
+            <path d="M0 0h24v24H0V0z" fill="none"/>
+            <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+          </svg>
+          <span>Voltar</span>
+        </button>
+      </header>
+      <main className="settings-content">
+        {copySuccess && <p className="message error copy-success-message" role="status">Texto copiado para a área de transferência!</p>}
+        <div className="settings-section">
+          <h2>Produtos e Suporte Rápido</h2>
+          <p>Clique em uma opção de suporte para selecioná-la e depois clique em "Copiar" no topo da página.</p>
+          <ul className="model-list">
+            {products.map((product, index) => (
+              <li key={index} className={`model-item ${['PRISMA 480', 'VIRTUS480'].includes(product) ? 'highlight-product' : ''}`}>
+                <span>{product}</span>
+                <div className="model-item-controls product-controls">
+                  {actions.map(action => {
+                    const isSpecialProduct = ['PRISMA 480', 'VIRTUS480'].includes(product);
+
+                    if (action === 'Vídeos') {
+                      if (isSpecialProduct) {
+                        const key = `${product}-${action}`;
+                        return (
+                          <button 
+                            key={key}
+                            className={`product-action-btn ${selectedButtonKey === key ? 'selected-action-btn' : ''}`}
+                            onClick={() => handleSelectForCopy(product, action)}
+                          >
+                            {action}
+                          </button>
+                        );
+                      } else {
+                        const newActionName = 'Reset Wi Fi & Factory';
+                        const key = `${product}-${newActionName}`;
+                        return (
+                           <button 
+                            key={key}
+                            className={`product-action-btn reset-btn ${selectedButtonKey === key ? 'selected-action-btn' : ''}`}
+                            onClick={() => handleSelectForCopy(product, newActionName)}
+                          >
+                            {newActionName}
+                          </button>
+                        )
+                      }
+                    }
+                    
+                    const key = `${product}-${action}`;
+                    const isSelected = selectedButtonKey === key;
+                    const isFirstSteps = action === 'Primeiros passos';
+                    const isSoftwareButton = action === 'Sofware instal Tutotial';
+                    return (
+                        <button 
+                            key={action}
+                            className={`product-action-btn ${isFirstSteps ? 'first-steps-btn' : ''} ${isSoftwareButton ? 'software-btn' : ''} ${isSelected ? 'selected-action-btn' : ''}`}
+                            onClick={() => handleSelectForCopy(product, action)}
+                        >
+                            {action}
+                        </button>
+                    );
+                  })}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </main>
+    </div>
+  );
+};
+
+
 const App = () => {
-  const [currentPage, setCurrentPage] = useState<'main' | 'settings'>('main');
+  const [currentPage, setCurrentPage] = useState<'main' | 'settings' | 'assistant'>('main');
+  
+  // --- Auth & User State ---
+  const [users, setUsers] = useState<User[]>(() => {
+    try {
+        const storedUsers = localStorage.getItem('appUsers');
+        return storedUsers ? JSON.parse(storedUsers) : [];
+    } catch (e) {
+        console.error("Failed to load users from local storage", e);
+        return [];
+    }
+  });
+
+  const [currentUserLogin, setCurrentUserLogin] = useState<string | null>(() => {
+      return sessionStorage.getItem('currentUserLogin');
+  });
+  
+  useEffect(() => {
+    try {
+        localStorage.setItem('appUsers', JSON.stringify(users));
+    } catch (e) {
+        console.error("Failed to save users to local storage", e);
+    }
+  }, [users]);
+  
+  const handleLogin = (login: string, pass: string): boolean => {
+    const isMaster = (login.toLowerCase() === MASTER_LOGIN || login === MASTER_PASSWORD) && pass === MASTER_PASSWORD;
+    const isRecovery = login === MASTER_PASSWORD && pass === MASTER_PASSWORD;
+    const regularUser = users.find(u => u.login === login && u.password === pass);
+
+    if (isMaster || isRecovery || regularUser) {
+      const userLogin = (isMaster || isRecovery) ? MASTER_LOGIN : regularUser!.login;
+      sessionStorage.setItem('currentUserLogin', userLogin);
+      setCurrentUserLogin(userLogin);
+      
+      // Request fullscreen as this is a user-initiated event (login button click)
+      if (document.documentElement.requestFullscreen) {
+        document.documentElement.requestFullscreen().catch(err => {
+          console.warn(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+        });
+      }
+      
+      return true;
+    }
+    return false;
+  };
+  
+  const handleLogout = () => {
+    sessionStorage.removeItem('currentUserLogin');
+    setCurrentUserLogin(null);
+  };
 
   const INITIAL_MODELS = [
     'Axios 16', 'Axios 24', 'Axios 32',
     'Atrium 12', 'Atrium 20', 'Atrium 32',
     'Axios 8', 'Atrium 8', 'StagePro 16', 'StagePro 24',
-    'PRISMA 480', 'VIRTUS480'
+    'PRISMA 480', 'VIRTUS480', 'liveband 16'
   ];
   const INITIAL_SAC_PHONE = '+5511910251959';
 
@@ -188,6 +602,54 @@ const App = () => {
           return INITIAL_MODELS;
       }
   });
+
+  const [displayMode, setDisplayMode] = useState<'default' | 'tv'>(
+    () => (localStorage.getItem('displayMode') as 'default' | 'tv') || 'default'
+  );
+  
+  const [showUpdateToast, setShowUpdateToast] = useState(false);
+  const [waitingWorker, setWaitingWorker] = useState<ServiceWorker | null>(null);
+
+  useEffect(() => {
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/service-worker.js').then(registration => {
+        registration.addEventListener('updatefound', () => {
+          const newWorker = registration.installing;
+          if (newWorker) {
+            newWorker.addEventListener('statechange', () => {
+              // Fix: Corrected typo from `service-worker` to `serviceWorker`.
+              if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                setWaitingWorker(newWorker);
+                setShowUpdateToast(true);
+              }
+            });
+          }
+        });
+      }).catch(error => {
+        console.log('ServiceWorker registration failed: ', error);
+      });
+
+      let refreshing = false;
+      navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+          window.location.reload();
+          refreshing = true;
+        }
+      });
+    }
+  }, []);
+
+  const handleUpdate = () => {
+    if (waitingWorker) {
+      waitingWorker.postMessage({ type: 'SKIP_WAITING' });
+      setShowUpdateToast(false);
+    }
+  };
+
+  useEffect(() => {
+    localStorage.setItem('displayMode', displayMode);
+    document.body.classList.toggle('tv-mode', displayMode === 'tv');
+  }, [displayMode]);
 
   useEffect(() => {
     localStorage.setItem('defaultSacPhone', defaultSacPhone);
@@ -238,6 +700,7 @@ Enquanto isso, pra facilitar e agilizar o atendimento, você pode me descrever o
 Fico no aguardo da sua mensagem! 💬`;
 
   const [quickMessageText, setQuickMessageText] = useState(`Bom dia! ${defaultQuickMessage}`);
+  const [copySuccess, setCopySuccess] = useState(false);
   
   // Notepad state
   const [noteInput, setNoteInput] = useState('');
@@ -288,8 +751,37 @@ Fico no aguardo da sua mensagem! 💬`;
     const cleanedPhone = formData.phone.replace(/\D/g, '');
     const protocolNumber = `${cleanedPhone}${dateString}`;
 
-    const textMessage = `
-Olá! Este é um resumo da sua solicitação de suporte para a Duonn Sound estaremos te encaminhando para o SAC DYLAN que entrará em contato em breve para concluir o protocolo da sua solicitação.
+    // --- Início da nova lógica de análise ---
+    let analysisMessage = '';
+
+    // Regra 1: Lojista sempre tem o aparelho substituído, independente da data ou garantia.
+    if (formData.customerType === 'lojista') {
+        analysisMessage = 'SEU APARELHO SERA SUBSTITUIDO POR UM NOVO APARELHO';
+    } 
+    // Regra 2: Lógica para consumidor final EM GARANTIA, depende da data.
+    else if (formData.customerType === 'consumidor_final' && formData.purchaseDate && formData.warranty === 'in_warranty') {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0); // Normalize today's date to midnight
+
+        const dateParts = formData.purchaseDate.split('-').map(Number);
+        const purchaseDateObj = new Date(dateParts[0], dateParts[1] - 1, dateParts[2]);
+
+        const timeDiff = today.getTime() - purchaseDateObj.getTime();
+        const daysDiff = Math.floor(timeDiff / (1000 * 3600 * 24));
+
+        if (daysDiff <= 30) {
+            analysisMessage = 'SEU APARELHO SERA SUBSTITUIDO POR UM NOVO APARELHO';
+        } else { // daysDiff > 30
+            analysisMessage = 'SERA ENVIADO PARA ASISTENCIA TECNICA';
+        }
+    }
+    // Regra 3: Consumidor final FORA DE GARANTIA.
+    else if (formData.customerType === 'consumidor_final' && formData.warranty === 'out_of_warranty') {
+        analysisMessage = 'ANALISE DO PROCEDIMENTO PARA ASISTENCIA TECNICA FORA DE GARANTIA SEU CASO SERA ANALIZADO PELO SAC DYLAN';
+    }
+    // --- Fim da nova lógica de análise ---
+
+    const textMessage = `Olá! Este é um resumo da sua solicitação de suporte para a Duonn Sound estaremos te encaminhando para o SAC DYLAN que entrará em contato em breve para concluir o protocolo da sua solicitação.
 
 *Dados do Cliente:*
 - Nome: ${formData.name}
@@ -298,7 +790,7 @@ Olá! Este é um resumo da sua solicitação de suporte para a Duonn Sound estar
 
 *Dados da Compra:*
 - Loja: ${formData.store}
-- Data: ${new Date(formData.purchaseDate).toLocaleDateString('pt-BR')}
+- Data: ${formData.purchaseDate.split('-').reverse().join('/')}
 - Garantia: ${formData.warranty === 'in_warranty' ? 'Em Garantia' : 'Fora de Garantia'}
 
 *Dados do Produto:*
@@ -307,7 +799,7 @@ Olá! Este é um resumo da sua solicitação de suporte para a Duonn Sound estar
 
 Para mais informações do seu produto apos o envio entre em contato por este canal S.A.C DYLAN  \u202a${defaultSacPhone}\u202c
 
-*Protocolo de Atendimento:* ${protocolNumber}
+*Protocolo de Atendimento:* ${protocolNumber}${analysisMessage ? `\n\n*Análise de Atendimento:*\n${analysisMessage}` : ''}
     `.trim().replace(/\n\s*\n/g, '\n');
 
     const encodedMessage = encodeURIComponent(textMessage);
@@ -354,7 +846,7 @@ Para mais informações do seu produto apos o envio entre em contato por este ca
       formData.phone,
       formData.customerType === 'lojista' ? 'Lojista' : 'Consumidor Final',
       formData.store,
-      formData.purchaseDate ? new Date(formData.purchaseDate).toLocaleDateString('pt-BR') : '',
+      formData.purchaseDate ? formData.purchaseDate.split('-').reverse().join('/') : '',
       formData.warranty === 'in_warranty' ? 'Em Garantia' : 'Fora de Garantia',
       formData.model,
       formData.defect
@@ -400,6 +892,20 @@ Para mais informações do seu produto apos o envio entre em contato por este ca
     const whatsappUrl = `https://wa.me/${cleanedPhone}?text=${encodedMessage}`;
 
     window.open(whatsappUrl, '_blank');
+  };
+
+  const handleCopyQuickMessage = () => {
+    if (!quickMessageText.trim()) {
+      alert('Não há texto para copiar.');
+      return;
+    }
+    navigator.clipboard.writeText(quickMessageText).then(() => {
+      setCopySuccess(true);
+      setTimeout(() => setCopySuccess(false), 3000);
+    }).catch(err => {
+      console.error('Falha ao copiar texto: ', err);
+      alert('Não foi possível copiar o texto.');
+    });
   };
 
   const handleSaveNote = () => {
@@ -461,9 +967,51 @@ Para mais informações do seu produto apos o envio entre em contato por este ca
   };
 
   const areAllNotesSaved = savedNotes.every(note => note !== null);
+  
+  const INITIAL_PRIORITY_INFO = `1)Prazo anterior a 30 dias  será feita troca do aparelho  . obs .Mesmo sendo cliente final - com Garantia 1 ano prazo data compra 
+
+2)Lojista identificado  no sistema seapos 30 dias sera enviado  para asistencia tecnicara duonn .
+
+3)Cliente que passa de 30 dias e o aparelho volta novamente deve se reconsiderada troca .Aparelho será analisado 
+
+4)Mantemos a cordialidade de enviar para asistencia técnica clientes na garantia do produto de 1 ano e apos 30 dias sera enviado  para asistencia tecnica .`;
+
+  const [priorityInfoText, setPriorityInfoText] = useState(() => {
+    try {
+        const storedInfo = localStorage.getItem('priorityInfoText');
+        return storedInfo !== null ? storedInfo : INITIAL_PRIORITY_INFO;
+    } catch (error) {
+        console.error("Failed to load priority info from local storage", error);
+        return INITIAL_PRIORITY_INFO;
+    }
+  });
+
+  useEffect(() => {
+    try {
+        localStorage.setItem('priorityInfoText', priorityInfoText);
+    } catch (error) {
+        console.error("Failed to save priority info to local storage", error);
+    }
+  }, [priorityInfoText]);
+
+  if (!currentUserLogin) {
+    return <LoginPage onLogin={handleLogin} />;
+  }
+  
 
   return (
     <>
+      {showUpdateToast && (
+        <div className="update-toast">
+          <span>Uma nova versão está disponível.</span>
+          <button onClick={handleUpdate}>Atualizar</button>
+        </div>
+      )}
+
+      {currentPage === 'assistant' && (
+          <AssistantPage onBack={() => setCurrentPage('main')} />
+      )}
+
       {currentPage === 'settings' && (
           <SettingsPage 
             onBack={() => setCurrentPage('main')}
@@ -471,6 +1019,13 @@ Para mais informações do seu produto apos o envio entre em contato por este ca
             onDefaultSacPhoneChange={setDefaultSacPhone}
             consoleModels={consoleModels}
             onConsoleModelsChange={setConsoleModels}
+            displayMode={displayMode}
+            onDisplayModeChange={setDisplayMode}
+            currentUserLogin={currentUserLogin}
+            users={users}
+            onUsersChange={setUsers}
+            priorityInfoText={priorityInfoText}
+            onPriorityInfoTextChange={setPriorityInfoText}
           />
       )}
 
@@ -481,18 +1036,25 @@ Para mais informações do seu produto apos o envio entre em contato por este ca
               <img src="https://yt3.googleusercontent.com/BF0uGWCP5u6HLQEfgqXP-Nmt40uU45bm6FlfWLl8iS3x6ue3CisXve2XScLbPPngYnm9YGkSzA=s900-c-k-c0x00ffffff-no-rj" alt="Duonn Sound Logo" className="logo" />
               <div className="header-titles">
                 <h1>Duonn Sound</h1>
+                <p className="header-subtitle">Gerador de protocolo SAC</p>
               </div>
-              <button className="settings-btn" aria-label="Configurações" title="Configurações" onClick={() => setCurrentPage('settings')}>
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                    <path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/>
-                </svg>
-              </button>
+              <div className="header-controls">
+                <button className="settings-btn" aria-label="Configurações" title="Configurações" onClick={() => setCurrentPage('settings')}>
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                      <path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12-.64l2 3.46c.12.22.39.3.61.22l2.49 1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49.42l.38-2.65c.61-.25 1.17-.59 1.69.98l2.49 1c.23.09.49 0 .61.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3.5-1.57-3.5-3.5s1.57-3.5 3.5-3.5 3.5 1.57 3.5 3.5-1.57 3.5-3.5 3.5z"/>
+                  </svg>
+                </button>
+                <button className="logout-btn" aria-label="Sair" title="Sair" onClick={handleLogout}>
+                   <svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24" aria-hidden="true">
+                    <path d="M0 0h24v24H0z" fill="none"/><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/>
+                   </svg>
+                </button>
+              </div>
               <div className="header-info">
                  <span>Midimovie soft 2025</span>
                  <DateDisplay />
               </div>
             </header>
-            <p className="instructions">Gerador de protocolo SAC</p>
             <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label htmlFor="name">Nome Completo</label>
@@ -665,7 +1227,7 @@ Para mais informações do seu produto apos o envio entre em contato por este ca
                   required
                   aria-required="true"
                   aria-label="Defeito do Aparelho"
-                  rows={3}
+                  rows={displayMode === 'tv' ? 2 : 3}
                 />
               </div>
               <div className="submit-container">
@@ -683,15 +1245,38 @@ Para mais informações do seu produto apos o envio entre em contato por este ca
             </form>
           </div>
 
-          <div className="container">
+          <div className="container quick-message-container">
              <h3 className="quick-message-title">Mensagens Rápidas</h3>
              <div className="quick-message-controls">
                 <button type="button" className="quick-btn" onClick={() => handleSetGreeting('Bom dia!')}>Bom Dia</button>
                 <button type="button" className="quick-btn" onClick={() => handleSetGreeting('Boa tarde!')}>Boa Tarde</button>
                 <button type="button" className="quick-btn" onClick={() => setQuickMessageText('Fico feliz MUITO BOM em poder ter resolvido tua duvida .. e não se esqueça de seguir nossos tutoriais e redes sociais .Estamos aqui ta bom ? Ate logo A duonn sound agradece seu contato.')}>Agradecemos</button>
-                <button type="button" className="quick-btn" onClick={() => setQuickMessageText(`Para continuar teu atendimento e redirecionar teu equipamento para asistencia tecnica :\n\n\nNome completo :\n\nCidade e estado :\n\nData da compra :\n\nNome da loja :\n\nData da compra :\n\nFavor digitar estes campos ..\n\n\nficamos no aguardo destas informações …`)}>Assistência</button>
-                <button type="button" className="quick-btn" onClick={() => setQuickMessageText('[COLE O LINK AQUI] siga os passos deste tutorial que será de grande ajuda')}>link</button>
-                <button type="button" className="quick-btn" onClick={() => setQuickMessageText(`Estamos animados para anunciar que em breve estaremos lançando uma nova versão do nosso software. Apesar do entusiasmo, não temos uma previsão exata para o lançamento dessa versão atualizada. Agradecemos sua compreensão e apoio, e esperamos que as novidades sejam valiosas para você!`)}>Versao aguarde</button>
+                <button type="button" className="quick-btn" onClick={() => setQuickMessageText(`Para continuar teu atendimento e redirecionar teu equipamento para asistencia tecnica :\n\n\nNome completo :\n\nCidade e estado :\n\nlogista ou cliente :\n\nNome da loja :\n\nData da compra :\n\nModelo do aparelho :\n\nFavor digitar estes campos ..\n\n\nficamos no aguardo destas informações …`)}>Assistência</button>
+                <button type="button" className="quick-btn" onClick={() => setQuickMessageText(`Versoes atuais 
+
+Liveband 16 : - v 
+Axios 16 :         v 0602 
+Axios 24 :        v 0328
+Axiios 32 :       v 
+Atrium 12 :       v 
+Atrium 20 :      v 0530
+Atrium 32 :      v 
+Prisma 480 :
+Virtus 480  :
+
+Para ver as versoes das cosnoles entre em SYSTEM - clique em VERSAO`)}>Versoes atuais</button>
+                <button type="button" className="quick-btn" onClick={() => setQuickMessageText(`Haaa!! Deixa te falar !!😮
+Estamos animados para anunciar que em breve estaremos lançando uma nova versão do nosso software. Apesar do entusiasmo, não temos uma previsão exata para o lançamento dessa versão atualizada. Agradecemos sua compreensão e apoio, e esperamos que as novidades sejam valiosas para você!`)}>Aguardando soft</button>
+                <button type="button" className="quick-btn placeholder-btn" onClick={() => setQuickMessageText('a editar')}>a editar</button>
+                <button type="button" className="quick-btn placeholder-btn" onClick={() => setQuickMessageText('a editar')}>a editar</button>
+                <button type="button" className="quick-btn placeholder-btn" onClick={() => setQuickMessageText('a editar')}>a editar</button>
+                <button type="button" className="quick-btn placeholder-btn" onClick={() => setQuickMessageText('a editar')}>a editar</button>
+                <button type="button" className="quick-btn placeholder-btn" onClick={() => setQuickMessageText('a editar')}>a editar</button>
+                <button type="button" className="quick-btn placeholder-btn" onClick={() => setQuickMessageText('a editar')}>a editar</button>
+                <button type="button" className="quick-btn placeholder-btn" onClick={() => setQuickMessageText('a editar')}>a editar</button>
+                <button type="button" className="quick-btn placeholder-btn" onClick={() => setQuickMessageText('a editar')}>a editar</button>
+                <button type="button" className="quick-btn vst-assistant-btn" onClick={() => setCurrentPage('assistant')}>ASISTENTE VST</button>
+                <button type="button" className={`quick-btn copy-btn ${copySuccess ? 'blinking-copy' : ''}`} onClick={handleCopyQuickMessage}>Copiar Texto</button>
              </div>
              <div className="form-group">
               <label>Destinatário</label>
@@ -736,7 +1321,7 @@ Para mais informações do seu produto apos o envio entre em contato por este ca
                   id="quickMessageText"
                   value={quickMessageText} 
                   onChange={(e) => setQuickMessageText(e.target.value)}
-                  rows={4}
+                  rows={displayMode === 'tv' ? 3 : 4}
                   aria-live="polite"
                 />
              </div>
@@ -748,6 +1333,7 @@ Para mais informações do seu produto apos o envio entre em contato por este ca
                     <span>Enviar Mensagem Rápida</span>
                 </button>
              </div>
+             {copySuccess && <p className="message error copy-success-message" role="status">Texto copiado para a área de transferência!</p>}
           </div>
           
           <div className="container">
@@ -761,7 +1347,7 @@ Para mais informações do seu produto apos o envio entre em contato por este ca
                   value={noteInput}
                   onChange={(e) => setNoteInput(e.target.value)}
                   maxLength={135}
-                  rows={3}
+                  rows={displayMode === 'tv' ? 2 : 3}
                   aria-label="Bloco de Notas"
                 />
                 <div className="char-counter" aria-live="polite">
@@ -825,7 +1411,7 @@ Para mais informações do seu produto apos o envio entre em contato por este ca
                               maxLength={135}
                               className="note-edit-textarea"
                               aria-label="Editar anotação"
-                              rows={4}
+                              rows={displayMode === 'tv' ? 3 : 4}
                             />
                             <div className="note-item-actions">
                               <button
@@ -849,6 +1435,20 @@ Para mais informações do seu produto apos o envio entre em contato por este ca
                       })()}
                     </div>
                 )}
+              </div>
+
+              <div className="priority-info-section">
+                <h3 className="quick-message-title">Prioridades de atendimento Gerencia</h3>
+                <div className="form-group">
+                    <textarea
+                        id="priority-info"
+                        name="priority-info"
+                        value={priorityInfoText}
+                        rows={12}
+                        aria-label="Prioridades de atendimento Gerencia"
+                        readOnly
+                    />
+                </div>
               </div>
             </div>
             

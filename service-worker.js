@@ -1,4 +1,4 @@
-const CACHE_NAME = 'duonn-suporte-cache-v6'; // Version bumped for update
+const CACHE_NAME = 'duonn-suporte-cache-v7'; // Version bumped for update
 const urlsToCache = [
   '/', // Caches the root, which is usually index.html
   'index.html',
@@ -25,8 +25,7 @@ self.addEventListener('install', event => {
       })
       .then(() => {
         console.log('All core assets were successfully cached.');
-        // Força o service worker em espera a se tornar o service worker ativo.
-        return self.skipWaiting(); 
+        // Não força mais a ativação imediata. O novo SW aguardará a interação do usuário.
       })
       .catch(error => {
         console.error('Core asset caching failed:', error);
@@ -97,4 +96,12 @@ self.addEventListener('fetch', event => {
         // Em um aplicativo real, você poderia retornar uma página offline personalizada aqui.
       })
   );
+});
+
+// Ouve mensagens da aplicação (cliente).
+self.addEventListener('message', (event) => {
+  // Se a mensagem for para pular a espera, o SW se tornará ativo.
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
 });
